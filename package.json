@@ -1,0 +1,22 @@
+{
+  "name": "recipescraper",
+  "version": "1.0.0",
+  "description": "Scrapes recipe from the website prochedemalade.com",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "Patrice Lynde",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.6.2",
+    "cheerio": "^1.0.0-rc.2",
+    "discord.io": "github:izy521/discord.io",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
+    "pg": "^7.10.0",
+    "q": "^1.5.1",
+    "request": "^2.88.0"
+  }
+}
