@@ -6,7 +6,7 @@
     "food",
     "recipe"
   ],
-  "repository": "https://https://github.com/patricelynde/DiscordMaiteBot",
+  "repository": "https://github.com/patricelynde/DiscordMaiteBot",
   "env": {
     "DISCORD_TOKEN": {
       "description": "A secret token for the discord API.",
