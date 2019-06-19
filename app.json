@@ -1,0 +1,22 @@
+{
+  "name": "Discord Maite Bot",
+  "description": "Discord bot that retrieves french cooking recipes, then sends a daily meal to a specific Discord channel.",
+  "keywords": [
+    "discord",
+    "food",
+    "recipe"
+  ],
+  "repository": "https://https://github.com/patricelynde/DiscordMaiteBot",
+  "env": {
+    "DISCORD_TOKEN": {
+      "description": "A secret token for the discord API.",
+      "required": true
+    }
+  },
+  "image": "heroku/nodejs",
+  "addons": [
+    {
+      "plan": "heroku-postgresql"
+    }
+  ]
+}
