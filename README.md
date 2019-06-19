@@ -5,6 +5,8 @@
 
 > Discord bot that scrapes recipe from the website prochedemalade.com then send a daily meal to a discord channel
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 ## Installing dependencies
 
 ```
