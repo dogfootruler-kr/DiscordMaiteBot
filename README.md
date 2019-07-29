@@ -3,7 +3,7 @@
   <img src="https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000" />
 </p>
 
-> Discord bot that scrapes recipe from the website prochedemalade.com then send a daily meal to a discord channel
+> Discord bot that scrapes recipes from the website prochedemalade.com then send a daily meal to a discord channel
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/patricelynde/DiscordMaiteBot)
 
@@ -32,7 +32,7 @@ npm run start
 
 Once the bot is up and running, here is the discord commands:
 ```
-!menu // Get a menu
+$menu // Get a menu
 ortolan // Misterious command
 ```
 
