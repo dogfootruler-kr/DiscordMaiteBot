@@ -1,156 +1,79 @@
 'use strict';
 
 require('dotenv').config();
-const fs = require('fs');
 const request = require('request');
-const cheerio = require('cheerio');
 const Discord = require('discord.io');
-const saveData = require('./db/insertRecipe').saveData;
 
-const url = 'https://www.prochedemalade.com/backup/menus-sante/diabete/menus-et-recettes/';
-const channelId = '542814475527651351';
+const spoontacularUrl = `https://api.spoonacular.com/recipes/random?number=1&apiKey=${process.env.SPOONTACULAR_TOKEN}&tag=lunch,dinner`;
+const masterChannelID = '542814475527651351';
 var queue = [];
 
-function sendRandomRecipe(channelID, type) {
-    fs.readFile('output.json', (err, data) => {
-        if (err) { throw err; }
-        let dataJSON = JSON.parse(data);
-        let randInt = Math.floor(Math.random() * dataJSON.length);
-        let randColor = Math.floor(Math.random() * 16777215);
-        let menu = dataJSON[randInt][type];
+/*Embed titles are limited to 256 characters
+Embed descriptions are limited to 2048 characters
+There can be up to 25 fields
+A field's name is limited to 256 characters and its value to 1024 characters
+The footer text is limited to 2048 characters
+The author name is limited to 256 characters
+In addition, the sum of all characters in an embed structure must not exceed 6000 characters
+A bot can have 1 embed per message
+A webhook can have 10 embeds per message*/
 
-        console.log(`Menu selected: ${JSON.stringify(menu)}`);
-        menu.forEach(element => {
-            let fields = [];
-            if (element.ingredients) {
-                fields.push({
-                    name: 'Ingrédients [4 personnes]',
-                    value: element.ingredients.join('\n')
-                });
-            }
-
-            if (element.preparation) {
-                fields.push({
-                    name: 'Préparation',
-                    value: element.preparation.join('\n')
-                });
-            }
-
-            if (element.conseils) {
-                fields.push({
-                    name: 'Conseils',
-                    value: element.conseils.join('\n')
-                });
-            }
-
-            let embedObject = {
-                color: randColor,
-                title: element.title,
-                fields: fields
-            };
-
-            queue.push({
-                to: channelID,
-                embed: embedObject
-            });
-        });
-    });
+function chunkString(str, length) {
+    return str.match(new RegExp('.{1,' + length + '}', 'gsm'));
 }
 
-getRecipes();
+function sendRandomRecipe(channelID) {
+    request(spoontacularUrl, { json: true }, (err, res, body) => {
+        if (err) { return console.log(err); }
+        const recipe = body.recipes[0];
+        let ingredients = recipe.extendedIngredients;
+        let title = recipe.title;
+        let instructions = recipe.instructions;
+        let readyInMinutes = recipe.readyInMinutes;
+        let servings = recipe.servings;
 
-function getRecipes() {
-    request(url, function (error, response, html) {
-        if (!error) {
-            var $ = cheerio.load(html);
-
-            var recipes = [];
-            var day = {
-                'Déjeuner': [],
-                'Dîner': []
-            };
-            var type = 'Déjeuner';
-
-            $('.recetteLinks .orangeBulls').each((i, elem) => {
-                var title, ingredients, preparation, conseils;
-                var recipe = {
-                    title: '',
-                    ingredients: '',
-                    preparation: '',
-                    conseils: ''
-                };
-                var data = $(elem);
-                var parent = data.parent().parent().parent().prev().prev().first().text();
-                if (parent === 'Déjeuner' && i !== 0) {
-                    recipes.push(day);
-                    day = {
-                        'Déjeuner': [],
-                        'Dîner': []
-                    };
-                    type = 'Déjeuner';
-                } else if (parent === 'Dîner') {
-                    type = 'Dîner';
-                }
-
-                title = data.children().first().text().trim().split('\n')[0];
-                ingredients = data.children().first().text().trim()
-                    .split('                    \n')[3].split('\n                                ');
-                ingredients = ingredients.map((e) => {
-                    return e.trim();
-                });
-
-                if (!data.children().first().text().trim().split('Préparation')[1]) {
-                    conseils = data.children().first().text().trim()
-                        .split('Préparation')[0].split('Conseils')[1].trim().split('\n');
-                    conseils = conseils.map((e) => {
-                        return e.trim();
-                    }).filter((f) => {
-                        if (f === 'Partagez ces informations avec un proche' || f === '' || f === 'Imprimer') {
-                            return false;
-                        }
-                        return true;
-                    });
-                }
-
-                if (data.children().first().text().trim().split('Conseils')[1]) {
-                    conseils = data.children().first().text().trim().split('Conseils')[1].trim().split('\n');
-                    conseils = conseils.map((e) => {
-                        return e.trim();
-                    }).filter((f) => {
-                        if (f === 'Partagez ces informations avec un proche' || f === '' || f === 'Imprimer') {
-                            return false;
-                        }
-                        return true;
-                    });
-                }
-
-                if (data.children().first().text().trim().split('Préparation')[1]) {
-                    preparation = data.children().first().text().trim().split('Préparation')[1]
-                        .split('Conseils')[0].trim().split('\n');
-                    preparation = preparation.map((e) => {
-                        return e.trim();
-                    }).filter((f) => {
-                        if (f === 'Partagez ces informations avec un proche' || f === '' || f === 'Imprimer') {
-                            return false;
-                        }
-                        return true;
-                    });
-                }
-
-                recipe.title = title;
-                recipe.ingredients = ingredients;
-                recipe.preparation = preparation;
-                recipe.conseils = conseils;
-                day[type].push(recipe);
+        let fields = [];
+        if (ingredients) {
+            let ingredientStringArray = ingredients.map((ingredient) => {
+                let name = ingredient.originalString;
+                let amount = ingredient.measures.metric.amount;
+                let unit = ingredient.measures.metric.unitLong;
+                return `${name} (${amount} ${unit})`;
+            });
+            fields.push({
+                name: `Ingrédients [${servings} personnes]`,
+                value: ingredientStringArray.join('\n')
             });
         }
 
-        if (recipes !== undefined) {
-            saveData(recipes);
-            fs.writeFile('output.json', JSON.stringify(recipes, null, 4), function () {
-                console.log('File successfully written! - Check your project directory for the output.json file');
+        if (instructions) {
+            let compiledInstructions = instructions.replace(/(<ol>)|(<\/ol>)|(<li>)/gm, '').replace(/<\/li>/gm, '\n');
+            // Fields value cannot exceed 1024 bytes.
+            let listOfCompiledInstructions = chunkString(compiledInstructions, 1024);
+            listOfCompiledInstructions.forEach((inst, index) => {
+                if (index === 0)
+                    fields.push({
+                        name: `Préparation [prêt en ${readyInMinutes} minutes]`,
+                        value: inst
+                    });
+                else
+                    fields.push({
+                        name: "suite",
+                        value: inst
+                    });
             });
         }
+
+        let embedObject = {
+            color: Math.floor(Math.random() * 16777215),
+            title: title,
+            fields: fields
+        };
+
+        queue.push({
+            to: channelID,
+            embed: embedObject
+        });
     });
 }
 
@@ -164,7 +87,7 @@ bot.on('ready', function () {
     console.log(bot.username + ' - (' + bot.id + ')');
 });
 
-bot.on('message', function (user, userID, channelID, message) {
+bot.on('message', async function (user, userID, channelID, message) {
     if (user === bot.username) {
         return;
     }
@@ -174,13 +97,13 @@ bot.on('message', function (user, userID, channelID, message) {
         var cmd = args[0];
 
         switch (cmd) {
-        // !menu
-        case 'menu':
-            console.log('Sending a menu');
-            sendRandomRecipe(channelID, 'Déjeuner');
-            break;
-        default:
-            break;
+            // $menu
+            case 'menu':
+                console.log('Sending a menu');
+                await sendRandomRecipe(channelID);
+                break;
+            default:
+                break;
         }
     }
 
@@ -206,21 +129,21 @@ setInterval(() => {
     let roughByteSize = JSON.stringify(messageToSend).length;
     console.log(`Sending message queue. Queue length: ${queue.length}, Message length: ${roughByteSize}`);
 
-    if (roughByteSize >= 4096) { return; }
+    if (roughByteSize >= 6000) { return; }
 
     bot.sendMessage(messageToSend);
 }, 1500);
 
-// Sending random recipe each day at 16h30, seding lunch and dinner at 11h30 during weekend
-setInterval(() => {
+// Sending random recipe each day at 16h30, sending lunch and dinner at 11h30 during weekend
+setInterval(async () => {
     var date = new Date();
     var hours = date.getHours();
     if ((date.getDay() === 6 || date.getDay() === 0) && hours === 10 && date.getMinutes() === 30) {
         console.log(`It is ${date.toLocaleString()}, sending lunch and dinner recipes.`);
-        sendRandomRecipe(channelId, 'Déjeuner');
-        sendRandomRecipe(channelId, 'Dîner');
+        await sendRandomRecipe(masterChannelID);
+        await sendRandomRecipe(masterChannelID);
     } else if (date.getDay() !== 6 && date.getDay() !== 0 && hours === 15 && date.getMinutes() === 30) {
         console.log(`It is ${date.toLocaleString()}, sending dinner recipe.`);
-        sendRandomRecipe(channelId, 'Dîner');
+        await sendRandomRecipe(masterChannelID);
     }
 }, 60000);

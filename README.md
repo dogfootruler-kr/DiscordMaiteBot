@@ -3,7 +3,7 @@
   <img src="https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000" />
 </p>
 
-> Discord bot that scrapes recipes from the website prochedemalade.com then send a daily meal to a discord channel
+> Discord bot that Retrieve recipe from spoontacular API then send daily meals to a discord channel
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/patricelynde/DiscordMaiteBot)
 
@@ -15,13 +15,10 @@ npm i
 
 ## Configuration
 
-- replace {{POSTGREUSERNAME}} by your postgresql username in the schema.psql file
-- run the schema.psql file to create the tables in your postgresql database
-
-Create a `.env` file (or as environment variables) at the root of the repository with these keys from the discord API and the POSTGRESQL database url:
+Create a `.env` file (or as environment variables) at the root of the repository with these keys from the discord API and the spoontacular API:
 ```
 DISCORD_TOKEN=
-DATABASE_URL=
+SPOONTACULAR_TOKEN=
 ```
 
 ## Usage
@@ -33,22 +30,17 @@ npm run start
 Once the bot is up and running, here is the discord commands:
 ```
 $menu // Get a menu
-ortolan // Misterious command
+ortolan // Mysterious command
 ```
 
 ## Dependencies
 
 ```
 "dependencies": {
-    "async": "^2.6.2",
-    "cheerio": "^1.0.0-rc.2",
     "discord.io": "github:izy521/discord.io",
     "dotenv": "^6.2.0",
-    "express": "^4.16.4",
-    "pg": "^7.10.0",
-    "q": "^1.5.1",
     "request": "^2.88.0"
-  }
+}
 ```
 
 ## Author

@@ -1,6 +1,6 @@
 {
   "name": "Discord Maite Bot",
-  "description": "Discord bot that retrieves french cooking recipes, then sends a daily meal to a specific Discord channel.",
+  "description": "Discord bot that retrieves cooking recipes, then sends a daily meal to a specific Discord channel.",
   "keywords": [
     "discord",
     "food",
@@ -11,11 +11,10 @@
     "DISCORD_TOKEN": {
       "description": "A secret token for the discord API.",
       "required": true
+    },
+    "SPOONTACULAR_TOKEN": {
+      "description": "A secret token for the spoontacular API.",
+      "required": true
     }
-  },
-  "addons": [
-    {
-      "plan": "heroku-postgresql"
-    }
-  ]
+  }
 }
