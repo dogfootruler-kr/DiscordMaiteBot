@@ -26,6 +26,8 @@ function sendRandomRecipe(channelID) {
     request(spoontacularUrl, { json: true }, (err, res, body) => {
         if (err) { return console.log(err); }
         const recipe = body.recipes[0];
+        let url = recipe.sourceUrl;
+        let image = recipe.image;
         let ingredients = recipe.extendedIngredients;
         let title = recipe.title;
         let instructions = recipe.instructions;
@@ -67,8 +69,14 @@ function sendRandomRecipe(channelID) {
         let embedObject = {
             color: Math.floor(Math.random() * 16777215),
             title: title,
-            fields: fields
+            fields: fields,
+            thumbnail: {
+                url: image
+            },
+            url: url
         };
+
+        console.log(embedObject)
 
         queue.push({
             to: channelID,
