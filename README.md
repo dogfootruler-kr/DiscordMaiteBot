@@ -48,4 +48,4 @@ ortolan // Mysterious command
 
 👤 **Patrice Lynde**
 
-* Github: [@patricelynde](https://github.com/patricelynde)
+* Github: [@dogfootruler-kr](https://github.com/dogfootruler-kr)
