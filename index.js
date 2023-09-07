@@ -5,7 +5,7 @@ const request = require('request');
 const Discord = require('discord.io');
 
 const spoontacularUrl = `https://api.spoonacular.com/recipes/random?number=1&apiKey=${process.env.SPOONTACULAR_TOKEN}&tag=lunch,dinner`;
-const masterChannelID = '542814475527651351';
+const masterChannelID = process.env.MASTER_CHANNEL_ID;
 var queue = [];
 
 /*Embed titles are limited to 256 characters
