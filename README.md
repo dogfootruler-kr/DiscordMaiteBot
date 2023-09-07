@@ -19,6 +19,7 @@ Create a `.env` file (or as environment variables) at the root of the repository
 ```
 DISCORD_TOKEN=
 SPOONTACULAR_TOKEN=
+MASTER_CHANNEL_ID=
 ```
 
 ## Usage
